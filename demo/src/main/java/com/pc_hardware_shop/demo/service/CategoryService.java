@@ -17,6 +17,15 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Transactional(readOnly = true)
+    public Category getCategoryByName(String name) {
+        return categoryRepository.findByName(name).orElseThrow(() -> new IllegalArgumentException("Category with name '" + name + "' does not exist"));
+    }
+    @Transactional(readOnly = true)
+    public Category getCategoryById(Long id) {
+        return categoryRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Category with id '" + id + "' does not exist"));
+    }
+
+    @Transactional(readOnly = true)
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
     }
@@ -32,7 +41,7 @@ public class CategoryService {
 
     public void deleteCategoryById(Long id) {
         if (!categoryRepository.existsById(id)) {
-            throw new IllegalArgumentException("Category with ID " + id + " does not exist");
+            throw new IllegalArgumentException("Category with ID '" + id + "' does not exist");
         }
         categoryRepository.deleteById(id);
     }

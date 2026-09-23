@@ -2,6 +2,7 @@ package com.pc_hardware_shop.demo.service;
 
 import com.pc_hardware_shop.demo.dto.ProductDTO;
 import com.pc_hardware_shop.demo.entity.Product;
+import com.pc_hardware_shop.demo.repository.CategoryRepository;
 import com.pc_hardware_shop.demo.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import java.util.List;
 @Transactional
 public class ProductService {
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
     @Transactional(readOnly = true)
     public List<Product> getAllProducts() {
@@ -46,6 +48,9 @@ public class ProductService {
     }
 
     public Product createProduct(ProductDTO productDTO) {
+        if (!categoryRepository.existsById(productDTO.categoryId())) {
+            throw new IllegalArgumentException("Category by id '" + productDTO.categoryId() + " do not exists");
+        }
         if (productRepository.existsBySku(productDTO.sku())) {
             throw new IllegalArgumentException("Product with sku '" + productDTO.sku() + "' already exists");
         }

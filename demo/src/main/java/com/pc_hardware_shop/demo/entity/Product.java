@@ -17,8 +17,7 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @Column(name = "category_id")
     private Long categoryId;
     @Column(nullable = false, unique = true, length = 40)
     private String sku;

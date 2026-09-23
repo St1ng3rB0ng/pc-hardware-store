@@ -10,6 +10,6 @@ create table if NOT EXISTS products(
     is_active BOOLEAN not null default true,
     constraint chk_product_price check(price > 0),
     constraint chk_products_name_not_blank check (TRIM(name) <> ''),
-    constraint fk_products_category foreign key (category_id) references categories(category_id) on delete restrict,
+    constraint fk_products_category foreign key (category_id) references categories(id) on delete restrict,
     index idx_products_category (category_id)
 );

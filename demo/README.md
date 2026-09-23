@@ -1,4 +1,5 @@
 ## This is Online store of pc`s 
+## Demo v0.1 Categories&Products
 ### To run the application:  
 #### Ensure to have installed these components:  
 + Java: jdk-25.*  
@@ -13,11 +14,12 @@ MySQL Server needs to be configured at 3306 port
 docker-compose up -d
 ```
 ```ps
-./gradlew build
+./gradlew bootRun
 ```
 
 #### Then go to POSTMAN:
-###### on current version only categories API`s are available
+###### on current version available Products and Categories API
+###### there some examples of API endpoints
 + Get    // get all categories   
 ```http
 http://localhost:8080/api/categories
