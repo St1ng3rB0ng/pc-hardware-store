@@ -4,6 +4,15 @@ import com.pc_hardware_shop.demo.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
-public interface CategoryRepository extends JpaRepository<Category,Long> {
+public interface CategoryRepository extends JpaRepository<Category, Long> {
+    boolean existsByName(String name);
+
+    Optional<Category> findByName(String name);
+
+    void deleteByName(String name);
+
+    void deleteById(Long id);
 }
