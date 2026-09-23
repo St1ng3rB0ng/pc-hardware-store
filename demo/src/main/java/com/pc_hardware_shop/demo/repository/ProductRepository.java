@@ -11,13 +11,15 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     boolean existsByName(String name);
 
-    Optional<Product> findByName(String name);
+    void deleteBySku(String sku);
 
     void deleteByName(String name);
 
-    Optional<Product> findBySku(String sku);
-
     boolean existsBySku(String sku);
+
+    Optional<Product> findByName(String name);
+
+    Optional<Product> findBySku(String sku);
 
     List<Product> findByCategoryId(Long categoryId);
 
