@@ -31,4 +31,6 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
     boolean existsByStreet(String street);
 
     boolean existsByPostalCode(String postalCode);
+
+    boolean existsByCustomerIdAndCityAndStreetAndPostalCode(Long customerId, String city, String street, String postalCode);
 }

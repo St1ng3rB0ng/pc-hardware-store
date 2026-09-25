@@ -64,6 +64,14 @@ public class AddressService {
         if (!customerRepository.existsById(addressDTO.customerId())) {
             throw new IllegalArgumentException("Customer with id '" + addressDTO.customerId() + "' do not exists");
         }
+        if (addressRepository.existsByCustomerIdAndCityAndStreetAndPostalCode(
+                addressDTO.customerId(),
+                addressDTO.city(),
+                addressDTO.street(),
+                addressDTO.postalCode())) {
+
+            throw new IllegalArgumentException("Address with customer id '" + addressDTO.customerId() + "' and city '" + addressDTO.city() + "' and street '" + addressDTO.street() + "' and postal code '" + addressDTO.postalCode() + "' already exists");
+        }
 
         Address address = Address.builder()
                 .customerId(addressDTO.customerId())
