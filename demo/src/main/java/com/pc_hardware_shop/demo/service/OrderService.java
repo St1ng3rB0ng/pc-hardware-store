@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -32,7 +33,8 @@ public class OrderService {
         Order createdOrder = Order.builder()
                 .customerId(order.customerId())
                 .shippingAddressId(order.shippingAddressId())
-                .status(order.status())
+                .status(order.status() != null ? order.status() : OrderStatus.CREATED)
+                .createdAt(Instant.now())
                 .build();
 
         return orderRepository.save(createdOrder);
