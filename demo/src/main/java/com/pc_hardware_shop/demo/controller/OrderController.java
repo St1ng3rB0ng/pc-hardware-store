@@ -34,13 +34,13 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
-    @GetMapping("/customer/{customerId}")
+    @GetMapping("/customerId/{customerId}")
     public ResponseEntity<List<Order>> getOrdersByCustomerId(@PathVariable Long customerId) {
         List<Order> orders = orderService.getOrdersByCustomerId(customerId);
         return ResponseEntity.ok(orders);
     }
 
-    @GetMapping("/address/{addressId}")
+    @GetMapping("/addressId/{addressId}")
     public ResponseEntity<List<Order>> getOrdersByShippingAddressId(@PathVariable Long addressId) {
         List<Order> orders = orderService.getOrdersByShippingAddressId(addressId);
         return ResponseEntity.ok(orders);
