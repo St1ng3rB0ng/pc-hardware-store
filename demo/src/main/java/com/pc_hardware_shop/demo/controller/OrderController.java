@@ -1,10 +1,12 @@
 package com.pc_hardware_shop.demo.controller;
 
 import com.pc_hardware_shop.demo.dto.OrderDTO;
+import com.pc_hardware_shop.demo.dto.OrderItemDTO;
 import com.pc_hardware_shop.demo.entity.Order;
 import com.pc_hardware_shop.demo.service.OrderService;
 import com.pc_hardware_shop.demo.staticData.OrderStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +17,20 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderController {
     private final OrderService orderService;
+
+    @PostMapping("/checkout")
+    public ResponseEntity<Order> checkout(
+            @RequestParam Long customerId,
+            @RequestParam Long shippingAddressId) {
+        Order createdOrder = orderService.checkout(customerId, shippingAddressId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
+    }
+
+    @GetMapping("/{orderId}/items")
+    public ResponseEntity<List<OrderItemDTO>> getOrderItemsByOrderId(@PathVariable Long orderId) {
+        List<OrderItemDTO> items = orderService.getOrderItemsByOrderId(orderId);
+        return ResponseEntity.ok(items);
+    }
 
     @PostMapping
     public ResponseEntity<Order> createOrder(@RequestBody OrderDTO order) {
