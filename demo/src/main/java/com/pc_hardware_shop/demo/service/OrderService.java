@@ -1,11 +1,10 @@
 package com.pc_hardware_shop.demo.service;
 
 import com.pc_hardware_shop.demo.dto.OrderDTO;
-import com.pc_hardware_shop.demo.entity.Order;
+import com.pc_hardware_shop.demo.dto.OrderItemDTO;
+import com.pc_hardware_shop.demo.entity.*;
 import com.pc_hardware_shop.demo.exceprion.NotFoundException;
-import com.pc_hardware_shop.demo.repository.AddressRepository;
-import com.pc_hardware_shop.demo.repository.CustomerRepository;
-import com.pc_hardware_shop.demo.repository.OrderRepository;
+import com.pc_hardware_shop.demo.repository.*;
 import com.pc_hardware_shop.demo.staticData.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +20,64 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final AddressRepository addressRepository;
     private final CustomerRepository customerRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
+
+    public List<OrderItemDTO> getOrderItemsByOrderId(Long orderId) {
+        if (!orderRepository.existsById(orderId)) {
+            throw new NotFoundException("Order with id '" + orderId + "' not found");
+        }
+
+        List<OrderItem> orderItems = orderItemRepository.findByIdOrderId(orderId);
+
+        return orderItems.stream()
+                .map(item -> new OrderItemDTO(
+                        item.getId().getProductId(),
+                        item.getQuantity(),
+                        item.getUnitPrice()
+                ))
+                .toList();
+    }
+
+    @Transactional
+    public Order checkout(Long customerId, Long shippingAddressId) {
+        Cart cart = cartRepository.findByCustomerId(customerId)
+                .orElseThrow(() -> new IllegalStateException("Cart is empty"));
+
+        if (cart.getItems().isEmpty()) {
+            throw new IllegalStateException("Cannot place an order with an empty cart");
+        }
+
+        Order order = Order.builder()
+                .customerId(customerId)
+                .shippingAddressId(shippingAddressId)
+                .status(OrderStatus.CREATED)
+                .createdAt(Instant.now())
+                .build();
+
+        Order savedOrder = orderRepository.save(order);
+
+        List<OrderItem> orderItems = cart.getItems().stream().map(cartItem -> {
+            Product product = cartItem.getProduct();
+
+            if (product.getStockQuantity() < cartItem.getQuantity()) {
+                throw new IllegalStateException("Not enough stock for product: " + product.getName());
+            }
+
+            return OrderItem.builder()
+                    .id(new OrderItemId(savedOrder.getOrderId(), product.getId()))
+                    .quantity(cartItem.getQuantity())
+                    .unitPrice(product.getPrice())
+                    .build();
+        }).toList();
+
+        orderItemRepository.saveAll(orderItems);
+
+        cartItemRepository.deleteAll(cart.getItems());
+
+        return savedOrder;
+    }
 
     @Transactional
     public Order createOrder(OrderDTO order) {
