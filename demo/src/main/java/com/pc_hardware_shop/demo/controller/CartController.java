@@ -15,13 +15,13 @@ public class CartController {
 
     private final CartService cartService;
 
-    @GetMapping("id/{customerId}")
+    @GetMapping("customer-id/{customerId}")
     public ResponseEntity<CartResponseDTO> getCart(@PathVariable Long customerId) {
         CartResponseDTO cart = cartService.getCartDTO(customerId);
         return ResponseEntity.ok(cart);
     }
 
-    @PostMapping("id/{customerId}/items")
+    @PostMapping("customer-id/{customerId}/items")
     public ResponseEntity<CartResponseDTO> addItemToCart(
             @PathVariable Long customerId,
             @Valid @RequestBody AddToCartRequestDTO request) {
@@ -29,7 +29,7 @@ public class CartController {
         return ResponseEntity.ok(updatedCart);
     }
 
-    @DeleteMapping("/{customerId}/items/{productId}")
+    @DeleteMapping("customer-id/{customerId}/items/{productId}")
     public ResponseEntity<Void> removeItemFromCart(
             @PathVariable Long customerId,
             @PathVariable Long productId) {
