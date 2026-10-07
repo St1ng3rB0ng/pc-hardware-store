@@ -37,9 +37,8 @@ public class CustomerController {
     }
 
     @GetMapping("/fullName")
-    public ResponseEntity<Customer> getCustomerByFullName(@RequestParam String fullName) {
-        Customer customer = customerService.getCustomerByFullName(fullName);
-        return ResponseEntity.ok(customer);
+    public ResponseEntity<List<Customer>> getCustomerByFullName(@RequestParam String fullName) {
+        return ResponseEntity.ok(customerService.getCustomerByFullName(fullName));
     }
 
     @PostMapping

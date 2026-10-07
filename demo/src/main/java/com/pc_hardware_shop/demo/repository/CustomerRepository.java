@@ -13,7 +13,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
     boolean existsByEmail(String email);
 
-    Optional<Customer> findByFullName(String name);
+    List<Customer> findByFullName(String name);
 
     Optional<Customer> findByEmail(String email);
 

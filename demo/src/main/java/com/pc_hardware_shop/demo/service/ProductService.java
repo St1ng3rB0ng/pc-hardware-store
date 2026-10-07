@@ -2,6 +2,7 @@ package com.pc_hardware_shop.demo.service;
 
 import com.pc_hardware_shop.demo.dto.ProductDTO;
 import com.pc_hardware_shop.demo.entity.Product;
+import com.pc_hardware_shop.demo.exceprion.NotFoundException;
 import com.pc_hardware_shop.demo.repository.CategoryRepository;
 import com.pc_hardware_shop.demo.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +34,11 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Product getProductByName(String name) {
-        return productRepository.findByName(name).orElseThrow(() -> new IllegalArgumentException("Product with name '" + name + "' does not exist"));
+    public List<Product> getProductByName(String name) {
+        if(!productRepository.existsByName(name)){
+            throw new NotFoundException("Product with name '" + name + "' does not exist");
+        }
+        return productRepository.findByName(name);
     }
 
     @Transactional(readOnly = true)

@@ -43,9 +43,8 @@ public class ProductController {
     }
 
     @GetMapping("/name")
-    public ResponseEntity<Product> getProductByName(@RequestParam String name) {
-        Product product = productService.getProductByName(name);
-        return ResponseEntity.ok(product);
+    public ResponseEntity<List<Product>> getProductByName(@RequestParam String name) {
+        return ResponseEntity.ok(productService.getProductByName(name));
     }
 
     @PostMapping

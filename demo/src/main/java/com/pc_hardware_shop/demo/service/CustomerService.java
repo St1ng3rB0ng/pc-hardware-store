@@ -2,6 +2,7 @@ package com.pc_hardware_shop.demo.service;
 
 import com.pc_hardware_shop.demo.dto.CustomerDTO;
 import com.pc_hardware_shop.demo.entity.Customer;
+import com.pc_hardware_shop.demo.exceprion.NotFoundException;
 import com.pc_hardware_shop.demo.repository.CustomerRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +32,11 @@ public class CustomerService {
     }
 
     @Transactional(readOnly = true)
-    public Customer getCustomerByFullName(String fullName) {
-        return customerRepository.findByFullName(fullName).orElseThrow(() -> new IllegalArgumentException("Customer with full name '" + fullName + "' does not exist"));
+    public List<Customer> getCustomerByFullName(String fullName) {
+        if(!customerRepository.existsByFullName(fullName)){
+            throw new NotFoundException("Customer with full name '" + fullName + "' does not exist");
+        }
+        return customerRepository.findByFullName(fullName);
     }
 
     public Customer createCustomer(CustomerDTO customerDTO){
