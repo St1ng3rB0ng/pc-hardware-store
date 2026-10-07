@@ -13,18 +13,24 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 public class Review {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "review_id", nullable = false)
     private Long id;
-    @Column(name = "customer_id", nullable = false)
+
+    @Column(name = "customer_id")
     private Long customerId;
-    @Column(name = "product_id", nullable = false)
+
+    @Column(name = "product_id")
     private Long productId;
-    @Column(name = "message", nullable = false)
+
+    @Column(name = "message", columnDefinition = "TEXT")
     private String message;
+
     @Column(name = "rating", nullable = false)
     private Byte rating;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 }

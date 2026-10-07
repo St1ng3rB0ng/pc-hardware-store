@@ -17,16 +17,22 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 public class Order {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_id")
     private Long orderId;
+
     @Column(name = "customer_id", nullable = false)
     private Long customerId;
+
     @Column(name = "shipping_address_id", nullable = false)
     private Long shippingAddressId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private OrderStatus status;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 }

@@ -10,21 +10,26 @@ import java.time.Instant;
 @Table(name = "users")
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    Long id;
-    @Column(nullable = false, unique = true, length = 254)
+    private Long id;
+
+    @Column(name = "email", nullable = false, unique = true, length = 255)
     private String email;
-    @Column(name = "password_hash", nullable = false, unique = true, length = 255)
-    String passwordHash;
+
+    @Column(name = "password_hash", nullable = false, length = 255)
+    private String passwordHash;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 20)
-    UserRole role;
-    @Column(name = "created_at")
-    Instant createdAt;
+    private UserRole role;
+
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
 }

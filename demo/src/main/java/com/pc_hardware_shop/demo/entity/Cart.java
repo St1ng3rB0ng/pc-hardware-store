@@ -2,17 +2,18 @@ package com.pc_hardware_shop.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "carts")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "carts")
 public class Cart {
 
     @Id

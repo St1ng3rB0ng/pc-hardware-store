@@ -13,16 +13,21 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 public class ReviewResponse {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "response_id", nullable = false)
     private Long id;
+
     @Column(name = "review_id", nullable = false)
     private Long reviewId;
-    @Column(name = "manager_name", nullable = false)
+
+    @Column(name = "manager_name", nullable = false, length = 100)
     private String managerName;
-    @Column(name = "response_text", nullable = false)
+
+    @Column(name = "response_text", nullable = false, columnDefinition = "TEXT")
     private String responseText;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 }
