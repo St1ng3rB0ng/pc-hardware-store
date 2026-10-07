@@ -33,13 +33,13 @@ public class UserController {
 
     @GetMapping("/by-id/{id}")
     public ResponseEntity<User> findUserById(@PathVariable Long id){
-        User user = userService.findUserById(id);
+        User user = userService.getUserById(id);
         return ResponseEntity.ok(user);
     }
 
     @GetMapping("/by-email")
     public ResponseEntity<User> findUserByEmail(@RequestParam String email){
-        User user = userService.findUserByEmail(email);
+        User user = userService.getUserByEmail(email);
         return ResponseEntity.ok(user);
     }
 }

@@ -44,7 +44,7 @@ public class ProductController {
 
     @GetMapping("/name")
     public ResponseEntity<List<Product>> getProductByName(@RequestParam String name) {
-        return ResponseEntity.ok(productService.getProductByName(name));
+        return ResponseEntity.ok(productService.getProductsByName(name));
     }
 
     @PostMapping

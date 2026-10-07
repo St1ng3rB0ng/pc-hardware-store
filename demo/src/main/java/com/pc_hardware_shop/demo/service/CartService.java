@@ -1,10 +1,18 @@
 package com.pc_hardware_shop.demo.service;
 
-import com.pc_hardware_shop.demo.dto.*;
-import com.pc_hardware_shop.demo.entity.*;
+import com.pc_hardware_shop.demo.dto.AddToCartRequestDTO;
+import com.pc_hardware_shop.demo.dto.CartItemResponseDTO;
+import com.pc_hardware_shop.demo.dto.CartResponseDTO;
+import com.pc_hardware_shop.demo.entity.Cart;
+import com.pc_hardware_shop.demo.entity.CartItem;
+import com.pc_hardware_shop.demo.entity.CartItemId;
+import com.pc_hardware_shop.demo.entity.Product;
 import com.pc_hardware_shop.demo.exceprion.NotFoundException;
-import com.pc_hardware_shop.demo.repository.*;
+import com.pc_hardware_shop.demo.repository.CartItemRepository;
+import com.pc_hardware_shop.demo.repository.CartRepository;
+import com.pc_hardware_shop.demo.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,8 +20,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CartService {
 
     private final CartRepository cartRepository;
@@ -34,13 +44,13 @@ public class CartService {
     @Transactional
     public CartResponseDTO addOrUpdateItem(Long customerId, AddToCartRequestDTO dto) {
         Product product = productRepository.findById(dto.productId())
-                .orElseThrow(() -> new NotFoundException("Product not found"));
+                .orElseThrow(() -> new NotFoundException("Product with id '" + dto.productId() + "' not found"));
 
         Cart cart = getOrCreateCart(customerId);
         CartItemId cartItemId = new CartItemId(cart.getId(), product.getId());
 
         CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElse(CartItem.builder()
+                .orElseGet(() -> CartItem.builder()
                         .id(cartItemId)
                         .cart(cart)
                         .product(product)
@@ -51,18 +61,30 @@ public class CartService {
         cartItemRepository.save(cartItem);
 
         cart.setUpdatedAt(Instant.now());
+        log.info("Successfully added/updated product ID: {} in cart for customer ID: {}. New quantity: {}",
+                product.getId(), customerId, cartItem.getQuantity());
+
         return getCartDTO(customerId);
     }
 
     @Transactional
     public void removeItem(Long customerId, Long productId) {
-        Cart cart = getOrCreateCart(customerId);
-        cartItemRepository.deleteById(new CartItemId(cart.getId(), productId));
+        Cart cart = cartRepository.findByCustomerId(customerId)
+                .orElseThrow(() -> new NotFoundException("Cart for customer id '" + customerId + "' not found"));
+
+        CartItemId cartItemId = new CartItemId(cart.getId(), productId);
+        if (!cartItemRepository.existsById(cartItemId)) {
+            throw new NotFoundException("Item with product id '" + productId + "' not found in cart");
+        }
+
+        cartItemRepository.deleteById(cartItemId);
+        cart.setUpdatedAt(Instant.now());
+        log.info("Successfully removed product ID: {} from cart for customer ID: {}", productId, customerId);
     }
 
-    @Transactional
     public CartResponseDTO getCartDTO(Long customerId) {
-        Cart cart = getOrCreateCart(customerId);
+        Cart cart = cartRepository.findByCustomerId(customerId)
+                .orElseGet(() -> getOrCreateCart(customerId));
 
         List<CartItemResponseDTO> items = cart.getItems().stream().map(item -> {
             BigDecimal price = item.getProduct().getPrice();

@@ -6,15 +6,18 @@ import com.pc_hardware_shop.demo.exceprion.NotFoundException;
 import com.pc_hardware_shop.demo.repository.AddressRepository;
 import com.pc_hardware_shop.demo.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class AddressService {
+
     private final AddressRepository addressRepository;
     private final CustomerRepository customerRepository;
 
@@ -31,46 +34,39 @@ public class AddressService {
 
     @Transactional(readOnly = true)
     public List<Address> getAddressesByCustomerId(Long customerId) {
-        if (!addressRepository.existsByCustomerId(customerId)) {
-            throw new NotFoundException("Addresses by customer id '" + customerId + "' not found");
-        }
         return addressRepository.findAddressesByCustomerId(customerId);
     }
 
     @Transactional(readOnly = true)
     public List<Address> getAddressesByCity(String city) {
-        if (!addressRepository.existsByCity(city)) {
-            throw new NotFoundException("Addresses by city '" + city + "' not found");
-        }
         return addressRepository.findAddressesByCity(city);
     }
 
     @Transactional(readOnly = true)
     public List<Address> getAddressesByStreet(String street) {
-        if (!addressRepository.existsByStreet(street)) {
-            throw new NotFoundException("Addresses by street '" + street + "' not found");
-        }
         return addressRepository.findAddressesByStreet(street);
     }
 
+    @Transactional(readOnly = true)
     public List<Address> getAddressesByPostalCode(String postalCode) {
-        if (!addressRepository.existsByPostalCode(postalCode)) {
-            throw new NotFoundException("Addresses by postal code '" + postalCode + "' not found");
-        }
         return addressRepository.findAddressesByPostalCode(postalCode);
     }
 
     public Address createAddress(AddressDTO addressDTO) {
         if (!customerRepository.existsById(addressDTO.customerId())) {
-            throw new IllegalArgumentException("Customer with id '" + addressDTO.customerId() + "' do not exists");
+            throw new IllegalArgumentException("Customer with id '" + addressDTO.customerId() + "' does not exist");
         }
+
         if (addressRepository.existsByCustomerIdAndCityAndStreetAndPostalCode(
                 addressDTO.customerId(),
                 addressDTO.city(),
                 addressDTO.street(),
                 addressDTO.postalCode())) {
 
-            throw new IllegalArgumentException("Address with customer id '" + addressDTO.customerId() + "' and city '" + addressDTO.city() + "' and street '" + addressDTO.street() + "' and postal code '" + addressDTO.postalCode() + "' already exists");
+            throw new IllegalArgumentException("Address with customer id '" + addressDTO.customerId()
+                    + "' and city '" + addressDTO.city()
+                    + "' and street '" + addressDTO.street()
+                    + "' and postal code '" + addressDTO.postalCode() + "' already exists");
         }
 
         Address address = Address.builder()
@@ -80,14 +76,19 @@ public class AddressService {
                 .postalCode(addressDTO.postalCode())
                 .build();
 
-        return addressRepository.save(address);
+        Address savedAddress = addressRepository.save(address);
+        log.info("Successfully created new address with ID: {} for customer ID: {}",
+                savedAddress.getId(), savedAddress.getCustomerId());
+
+        return savedAddress;
     }
 
     public void deleteAddressById(Long id) {
         if (!addressRepository.existsById(id)) {
-            throw new NotFoundException("Addresses by id '" + id + "' not found");
+            throw new NotFoundException("Address by id '" + id + "' not found");
         }
         addressRepository.deleteById(id);
+        log.info("Successfully deleted address with ID: {}", id);
     }
 
     public void deleteAddressesByCustomerId(Long customerId) {
@@ -95,6 +96,7 @@ public class AddressService {
             throw new NotFoundException("Addresses by customer id '" + customerId + "' not found");
         }
         addressRepository.deleteAddressByCustomerId(customerId);
+        log.info("Successfully deleted addresses for customer ID: {}", customerId);
     }
 
     public void deleteAddressesByCity(String city) {
@@ -102,19 +104,22 @@ public class AddressService {
             throw new NotFoundException("Addresses by city '" + city + "' not found");
         }
         addressRepository.deleteAddressByCity(city);
+        log.info("Successfully deleted addresses for city: {}", city);
     }
 
     public void deleteAddressesByStreet(String street) {
         if (!addressRepository.existsByStreet(street)) {
-            throw new NotFoundException("Addresses by street'" + street + "' not found");
+            throw new NotFoundException("Addresses by street '" + street + "' not found");
         }
         addressRepository.deleteAddressByStreet(street);
+        log.info("Successfully deleted addresses for street: {}", street);
     }
 
     public void deleteAddressesByPostalCode(String postalCode) {
         if (!addressRepository.existsByPostalCode(postalCode)) {
-            throw new NotFoundException("Addresses by postal code'" + postalCode + "' not found");
+            throw new NotFoundException("Addresses by postal code '" + postalCode + "' not found");
         }
         addressRepository.deleteAddressByPostalCode(postalCode);
+        log.info("Successfully deleted addresses for postal code: {}", postalCode);
     }
 }

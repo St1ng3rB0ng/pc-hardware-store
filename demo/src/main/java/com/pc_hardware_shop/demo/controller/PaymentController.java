@@ -33,16 +33,16 @@ public class PaymentController {
 
     @GetMapping("order-id/{orderId}")
     public ResponseEntity<List<Payment>> findByOrderId(@PathVariable Long orderId) {
-        return ResponseEntity.ok(paymentService.findByOrderId(orderId));
+        return ResponseEntity.ok(paymentService.getPaymentsByOrderId(orderId));
     }
 
     @GetMapping("/status")
     public ResponseEntity<List<Payment>> findAllByStatus(@RequestParam PaymentStatus status) {
-        return ResponseEntity.ok(paymentService.findAllByStatus(status));
+        return ResponseEntity.ok(paymentService.getPaymentsByStatus(status));
     }
 
     @GetMapping("payment-id/{paymentId}")
     public ResponseEntity<Payment> findById(@PathVariable Long paymentId) {
-        return ResponseEntity.ok(paymentService.findById(paymentId).orElse(null));
+        return ResponseEntity.ok(paymentService.getPaymentById(paymentId));
     }
 }

@@ -6,89 +6,100 @@ import com.pc_hardware_shop.demo.exceprion.NotFoundException;
 import com.pc_hardware_shop.demo.repository.CategoryRepository;
 import com.pc_hardware_shop.demo.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class ProductService {
+
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
-    @Transactional(readOnly = true)
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
-    @Transactional(readOnly = true)
     public Product getProductById(Long id) {
-        return productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Product with ID " + id + " does not exist"));
+        return productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Product with id '" + id + "' not found"));
     }
 
-    @Transactional(readOnly = true)
     public Product getProductBySku(String sku) {
-        return productRepository.findBySku(sku).orElseThrow(() -> new IllegalArgumentException("Product with SKU '" + sku + "' does not exist"));
+        return productRepository.findBySku(sku)
+                .orElseThrow(() -> new NotFoundException("Product with SKU '" + sku + "' not found"));
     }
 
-    @Transactional(readOnly = true)
-    public List<Product> getProductByName(String name) {
-        if(!productRepository.existsByName(name)){
-            throw new NotFoundException("Product with name '" + name + "' does not exist");
-        }
+    public List<Product> getProductsByName(String name) {
         return productRepository.findByName(name);
     }
 
-    @Transactional(readOnly = true)
     public List<Product> getProductsByCategory(Long categoryId) {
         return productRepository.findByCategoryId(categoryId);
     }
 
-    @Transactional(readOnly = true)
     public List<Product> getProductsByActiveStatus(boolean isActive) {
         return productRepository.findByIsActive(isActive);
     }
 
+    @Transactional
     public Product createProduct(ProductDTO productDTO) {
+        String sku = productDTO.sku().trim();
+        String name = productDTO.name().trim();
+
         if (!categoryRepository.existsById(productDTO.categoryId())) {
-            throw new IllegalArgumentException("Category by id '" + productDTO.categoryId() + " do not exists");
+            throw new IllegalArgumentException("Category with id '" + productDTO.categoryId() + "' does not exist");
         }
-        if (productRepository.existsBySku(productDTO.sku())) {
-            throw new IllegalArgumentException("Product with sku '" + productDTO.sku() + "' already exists");
+
+        if (productRepository.existsBySku(sku)) {
+            throw new IllegalArgumentException("Product with SKU '" + sku + "' already exists");
         }
 
         Product product = Product.builder()
-                .sku(productDTO.sku().trim())
-                .name(productDTO.name().trim())
+                .sku(sku)
+                .name(name)
                 .isActive(productDTO.isActive())
                 .categoryId(productDTO.categoryId())
                 .stockQuantity(productDTO.stockQuantity())
                 .price(productDTO.price())
                 .build();
 
-        return productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+        log.info("Successfully created new product with ID: {}, SKU: '{}' and Name: '{}'",
+                savedProduct.getId(), savedProduct.getSku(), savedProduct.getName());
+
+        return savedProduct;
     }
 
+    @Transactional
     public void deleteProductById(Long id) {
         if (!productRepository.existsById(id)) {
-            throw new IllegalArgumentException("Product with ID " + id + "does not exist");
+            throw new NotFoundException("Product with id '" + id + "' not found");
         }
         productRepository.deleteById(id);
+        log.info("Successfully deleted product with ID: {}", id);
     }
 
+    @Transactional
     public void deleteProductByName(String name) {
         if (!productRepository.existsByName(name)) {
-            throw new IllegalArgumentException("Product with name '" + name + "' does not exist");
+            throw new NotFoundException("Products with name '" + name + "' not found");
         }
         productRepository.deleteByName(name);
+        log.info("Successfully deleted products with name: '{}'", name);
     }
 
+    @Transactional
     public void deleteProductBySku(String sku) {
         if (!productRepository.existsBySku(sku)) {
-            throw new IllegalArgumentException("Product with sku '" + sku + "' does not exist");
+            throw new NotFoundException("Product with SKU '" + sku + "' not found");
         }
         productRepository.deleteBySku(sku);
+        log.info("Successfully deleted product with SKU: '{}'", sku);
     }
 }
