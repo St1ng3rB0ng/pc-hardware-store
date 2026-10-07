@@ -42,6 +42,7 @@ public class CustomerService {
         Customer customer = Customer.builder()
                 .fullName(customerDTO.fullName())
                 .email(customerDTO.email())
+                .userId(customerDTO.userId())
                 .build();
         return customerRepository.save(customer);
     }

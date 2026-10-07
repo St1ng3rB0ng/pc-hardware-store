@@ -26,4 +26,6 @@ public class Customer {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
+    @Column(name = "user_id", nullable = false, unique = true)
+    Long userId;
 }

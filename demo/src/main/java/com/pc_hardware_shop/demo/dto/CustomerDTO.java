@@ -2,6 +2,7 @@ package com.pc_hardware_shop.demo.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record CustomerDTO(
@@ -11,6 +12,7 @@ public record CustomerDTO(
         @Email(message = "Provided email is not valid")
         @NotBlank(message = "Email cannot be blank")
         @Size(min = 1, max = 254, message = "Email must be between 1 and 254 characters")
-        String email
-
+        String email,
+        @NotNull(message = "UserId is required")
+        Long userId
 ) {}
