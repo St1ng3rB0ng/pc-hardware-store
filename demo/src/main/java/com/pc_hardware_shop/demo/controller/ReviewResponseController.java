@@ -5,6 +5,8 @@ import com.pc_hardware_shop.demo.entity.ReviewResponse;
 import com.pc_hardware_shop.demo.service.ReviewResponseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,20 +15,29 @@ import java.util.List;
 @RequestMapping("/api/review-responses")
 @RequiredArgsConstructor
 public class ReviewResponseController {
+
     private final ReviewResponseService reviewResponseService;
 
-    @PostMapping
-    public ReviewResponse createReviewResponse(@Valid @RequestBody ReviewResponseDTO reviewResponseDTO) {
-        return reviewResponseService.createReviewResponse(reviewResponseDTO);
-    }
-
     @GetMapping
-    public List<ReviewResponse> getAllReviewResponses() {
-        return reviewResponseService.getAllReviewResponses();
+    public ResponseEntity<List<ReviewResponse>> getReviewResponses(
+            @RequestParam(required = false) Long reviewId) {
+
+        if (reviewId != null) {
+            return ResponseEntity.ok(reviewResponseService.getReviewResponsesByReviewId(reviewId));
+        }
+
+        return ResponseEntity.ok(reviewResponseService.getAllReviewResponses());
     }
 
-    @GetMapping("by-review-id/{id}")
-    public List<ReviewResponse> getReviewResponsesByReviewId(@PathVariable Long id) {
-        return reviewResponseService.getReviewResponsesByReviewId(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<ReviewResponse> getReviewResponseById(@PathVariable Long id) {
+        return ResponseEntity.ok(reviewResponseService.getReviewResponseById(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<ReviewResponse> createReviewResponse(
+            @Valid @RequestBody ReviewResponseDTO reviewResponseDTO) {
+        ReviewResponse createdResponse = reviewResponseService.createReviewResponse(reviewResponseDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdResponse);
     }
 }

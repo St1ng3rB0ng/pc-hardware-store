@@ -1,11 +1,11 @@
 package com.pc_hardware_shop.demo.controller;
 
-
 import com.pc_hardware_shop.demo.dto.CustomerDTO;
 import com.pc_hardware_shop.demo.entity.Customer;
 import com.pc_hardware_shop.demo.service.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,49 +19,40 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @GetMapping
-    public ResponseEntity<List<Customer>> getAllCustomers() {
-        List<Customer> customers = customerService.getAllCustomers();
-        return ResponseEntity.ok(customers);
+    public ResponseEntity<?> getCustomers(
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String fullName) {
+
+        if (email != null && !email.isBlank()) {
+            return ResponseEntity.ok(customerService.getCustomerByEmail(email.trim()));
+        }
+        if (fullName != null && !fullName.isBlank()) {
+            return ResponseEntity.ok(customerService.getCustomersByFullName(fullName.trim()));
+        }
+
+        return ResponseEntity.ok(customerService.getAllCustomers());
     }
 
-    @GetMapping("id/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Customer> getCustomerById(@PathVariable Long id) {
-        Customer customer = customerService.getCustomerById(id);
-        return ResponseEntity.ok(customer);
-    }
-
-    @GetMapping("/email")
-    public ResponseEntity<Customer> getCustomerByEmail(@RequestParam String email) {
-        Customer customer = customerService.getCustomerByEmail(email);
-        return ResponseEntity.ok(customer);
-    }
-
-    @GetMapping("/fullName")
-    public ResponseEntity<List<Customer>> getCustomerByFullName(@RequestParam String fullName) {
-        return ResponseEntity.ok(customerService.getCustomersByFullName(fullName));
+        return ResponseEntity.ok(customerService.getCustomerById(id));
     }
 
     @PostMapping
     public ResponseEntity<Customer> createCustomer(@Valid @RequestBody CustomerDTO customerDTO) {
-        Customer customer = customerService.createCustomer(customerDTO);
-        return ResponseEntity.ok(customer);
+        Customer createdCustomer = customerService.createCustomer(customerDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdCustomer);
     }
 
-    @DeleteMapping("/id/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCustomerById(@PathVariable Long id) {
         customerService.deleteCustomerById(id);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/email")
+    @DeleteMapping("/by-email")
     public ResponseEntity<Void> deleteCustomerByEmail(@RequestParam String email) {
-        customerService.deleteCustomerByEmail(email);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("/fullName")
-    public ResponseEntity<Void> deleteCustomerByFullName(@RequestParam String fullName) {
-        customerService.deleteCustomerByFullName(fullName);
+        customerService.deleteCustomerByEmail(email.trim());
         return ResponseEntity.noContent().build();
     }
 }

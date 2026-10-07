@@ -2,13 +2,12 @@ package com.pc_hardware_shop.demo.controller;
 
 import com.pc_hardware_shop.demo.dto.CategoryDTO;
 import com.pc_hardware_shop.demo.entity.Category;
-import com.pc_hardware_shop.demo.entity.Product;
 import com.pc_hardware_shop.demo.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -16,12 +15,20 @@ import java.util.List;
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor
 public class CategoryController {
+
     private final CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<List<Category>> getAllCategories() {
-        List<Category> categories = categoryService.getAllCategories();
-        return ResponseEntity.ok(categories);
+    public ResponseEntity<?> getCategories(@RequestParam(required = false) String name) {
+        if (name != null && !name.isBlank()) {
+            return ResponseEntity.ok(categoryService.getCategoryByName(name.trim()));
+        }
+        return ResponseEntity.ok(categoryService.getAllCategories());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
+        return ResponseEntity.ok(categoryService.getCategoryById(id));
     }
 
     @PostMapping
@@ -30,29 +37,15 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
     }
 
-    // .../by-id/value
-    @DeleteMapping("/by-id/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategoryById(@PathVariable Long id) {
         categoryService.deleteCategoryById(id);
-        return ResponseEntity.noContent().build(); // sends 204 No Content
+        return ResponseEntity.noContent().build();
     }
 
-    // .../by-name?name=value
     @DeleteMapping("/by-name")
     public ResponseEntity<Void> deleteCategoryByName(@RequestParam String name) {
-        categoryService.deleteCategoryByName(name);
-        return ResponseEntity.noContent().build(); // sends 204 No Content
+        categoryService.deleteCategoryByName(name.trim());
+        return ResponseEntity.noContent().build();
     }
-
-    @GetMapping("/name")
-    public ResponseEntity<Category> getCategoryByName(@RequestParam String name) {
-        Category category = categoryService.getCategoryByName(name);
-        return ResponseEntity.ok(category);
-    }
-    @GetMapping("/id/{id}")
-    public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
-        Category category = categoryService.getCategoryById(id);
-        return ResponseEntity.ok(category);
-    }
-
 }
